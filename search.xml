@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<search> 
+  
+  
+    
+    <entry>
+      <title>一个由硬链接引发的问题</title>
+      <link href="/2022/08/07/yi-ge-you-ying-lian-jie-yin-fa-de-wen-ti/"/>
+      <url>/2022/08/07/yi-ge-you-ying-lian-jie-yin-fa-de-wen-ti/</url>
+      
+        <content type="html"><![CDATA[<h1 id="一个由硬链接引发的问题"><a href="#一个由硬链接引发的问题" class="headerlink" title="一个由硬链接引发的问题"></a>一个由硬链接引发的问题</h1><h2 id="问题背景"><a href="#问题背景" class="headerlink" title="问题背景"></a>问题背景</h2><p>最近关于 Fastjson 的漏洞又被爆出来了，作为修理工（哦不，专业的软件工程师），又到了我们表演的时候了。</p><p><img src="https://raw.githubusercontent.com/sparkchans/pictures/master/%E8%AF%B7%E5%BC%80%E5%A7%8B%E4%BD%A0%E7%9A%84%E8%A1%A8%E6%BC%94.jpg"></p><p>我们有很多服务是用的老版本的有漏洞的jar包，为了解决这个漏洞问题，我们决定来个偷梁换柱，使用新版本的jar包直接把老版本的有漏洞的jar版本直接覆盖掉。哎哎哎，要想程序搞得好，三十六计不可少。</p><p><img src="https://raw.githubusercontent.com/sparkchans/pictures/master/%E5%81%B7%E6%A2%81%E6%8D%A2%E6%9F%B1.png"></p><h2 id="问题现象"><a href="#问题现象" class="headerlink" title="问题现象"></a>问题现象</h2><p>既然方案确定了，那就开始干，具体思路如下：</p><ul><li>从环境上找出老版本的jar包，然后备份到一个备份路径下，这里备份是为了<strong>支持回退</strong>的功能。</li><li>然后把新版本的jar包拷贝到老版本jar包的路径下。</li><li>重启所有的微服务是jar包生效。</li></ul><p>代码的逻辑如下图所示：</p><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token keyword">for</span> 老版本的jar包 <span class="token keyword">in</span> 所有老版本的jar包<span class="token punctuation">;</span> <span class="token keyword">do</span>     备份老版本的jar包     将新版本的jar包拷贝覆盖老版本的jar包<span class="token keyword">done</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre><p>整体思路很简单，但是问题就出在这个备份上面。在实际的测试过程中，发现备份的目录下，jar包的版本大多数都变成新版本的jar包了，而不是老版本的jar包，如下图所示，在 <code>/tmp/home/testuser </code> 下的 <code>fastjson-1.2.70.jar</code> 这个包的 Hash 值实际上和 <code>fastjson-1.2.83.jar</code> 这个包的 Hash 值一样。</p><p><img src="https://raw.githubusercontent.com/sparkchans/pictures/master/%E6%88%AA%E5%9B%BE%E4%B8%80.png"></p><p><img src="https://raw.githubusercontent.com/sparkchans/pictures/master/image-20220626193219265.png"></p><p>最开始一直以为是自己代码逻辑写的有问题，于是一遍一遍的检查。我先把新版本的jar包覆盖老版本的 jar 包这个逻辑去掉，然后计算备份路径下所有的 Hash 值，发现都是老版本的 jar 包，是没有问题的。</p><p>但是一旦我把覆盖老版本的 jar 包逻辑加上去，这个备份的 jar 包版本就变了，我反反复复搞了好几次结果都是一样的，真是让我百思不得其解。困扰程序员的两大难题之一在我脑海中产生了，它为啥就跑不起来呢？</p><p><img src="https://fastly.jsdelivr.net/gh/filess/img0@main/2022/06/26/1656243666307-ba33ce58-83db-446c-86b8-468cfa041b10.jpg"></p><p>既然看不出来，那就只能使用程序员的必杀器了，Debug 一把。我把每次循环执行覆盖操作后，备份目录的下的 jar 的 Hash 值都算了一下，结果发现在执行第二次循环的时候，备份目录的下的 jar 文件就已经变成了新版本的jar包文件了。</p><p>观察到这个现象之后，我就开始思考为啥会出现这种情况呢？第二个循环的逻辑明明和第一次的逻辑是一样的，为啥结果就变了呢？</p><p><img src="https://raw.githubusercontent.com/sparkchans/pictures/master/%E6%8C%A0%E5%A4%B4.jpg"></p><p>当天搞了很久也没有找到原因是啥，脑壳都给我搞昏了。没办法，明天接着搞。第二天早上来，由于经过了一晚上的回血，思路又清晰起来了，觉得自己又行了。</p><p><img src="https://raw.githubusercontent.com/sparkchans/pictures/master/%E5%8F%88%E8%A1%8C%E4%BA%861.jpg"></p><p>这个时候我想起来，之前有人好像给我说过，我们的jar包是做的硬链接的。这个让我想到了一个经典的面试题：Linux 的软链接和硬链接的区别是啥？区别是啥来着？嗯嗯……，想不起来了，书到用时方恨少啊，默默的流下了没有知识的泪水。</p><p>网上找了一些文章来看，又从电脑屏幕下把压着的《鸟哥的 Linux 私房菜》取出来复习一下。</p><p>然后登录到环境上，看了一下环境上老版本的 jar 包，发现确实是做的硬链接。为了演示这个情况，我在我自己的环境上复现了一下这种情况，如下图所示：</p><p><img src="https://raw.githubusercontent.com/sparkchans/pictures/master/%E6%88%AA%E5%9B%BE%E4%BA%8C.png"></p><p>软链接和硬链接的区别可以参考网上的资料和书籍，我在这里就不细讲了。针对我当前遇到的这个问题，可以打个不恰当的比喻：硬链接就好像你照镜子一样，你做了什么样的改变，镜子里面的你也会做同样的改变。如上图所示，当我们改变 <code>/home/testuser</code> 目录下的 <code>fastjson-1.2.70.jar</code> 这个文件的内容时，<code>/home/admin</code> 目录下的 <code>fastjson-1.2.70.jar</code> 文件的内容会变得和它一样。</p><p>知道了这个特性，我们再结合代码来分析一下：</p><ul><li><p>已知条件：环境上有两个jar包文件: <code>/home/testuser/fastjson-1.2.70.jar</code> 和 <code>/home/admin/fastjson-1.2.70.jar</code>  这两个jar包是硬链接关系</p></li><li><p>推导：当我们执行第一次for循环到<strong>将新版本的jar包拷贝覆盖老版本的jar包</strong>这个步骤时，会把其中一个路径下的jar包版本替换成新版本的jar包了，这个时候相当于<code>/home/testuser/fastjson-1.2.70.jar</code> 和 <code>/home/admin/fastjson-1.2.70.jar</code>  这两个jar包都已经变成新版本的jar包了；当第二次for循环到<strong>备份老版本的jar包</strong>时，这个时候备份的是实际上已经是新版本的jar包了。这个就是为啥第二次以后备份的jar包版本都是新版本的原因了。</p></li></ul><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token keyword">for</span> 老版本的jar包 <span class="token keyword">in</span> 所有老版本的jar包<span class="token punctuation">;</span> <span class="token keyword">do</span>     备份老版本的jar包     将新版本的jar包拷贝覆盖老版本的jar包<span class="token keyword">done</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre><h2 id="解决方法"><a href="#解决方法" class="headerlink" title="解决方法"></a>解决方法</h2><p>知道原因了，我们就思考上面的代码应该怎么改？很显然，备份和拷贝覆盖老版本的jar包这两个动作应该拆分到两个for循环中去实现才行，这样的备份这个for循环里面就会备份的是所有老版本的jar包。如下面的代码所示：</p><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token keyword">for</span> 老版本的jar包 <span class="token keyword">in</span> 所有老版本的jar包<span class="token punctuation">;</span> <span class="token keyword">do</span>     备份老版本的jar包<span class="token keyword">done</span><span class="token keyword">for</span> 老版本的jar包 <span class="token keyword">in</span> 所有老版本的jar包<span class="token punctuation">;</span> <span class="token keyword">do</span>     将新版本的jar包拷贝覆盖老版本的jar包<span class="token keyword">done</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre><p>这个问题的解决主要是要理解硬链接的原理。说实话这个知识之前也看过很多遍，每次看的时候都觉得自己懂了，但是真正遇到问题的时候，才发现自己根本就没有懂。</p><p><img src="https://raw.githubusercontent.com/sparkchans/pictures/master/%E4%BD%A0%E4%B8%8D%E6%87%82.png"></p><p>通过这次问题的解决，我想我应该是对硬链接有了一定的了解。其实在日常的工作中，很多的小问题背后其实都对应的一些知识点的，如果我们能够把这些小问题搞清楚，其实对我们<strong>真正</strong>理解和掌握这个知识是有很大帮助的。好了，今天就到这里了，朋友们，我们下期再见！</p><p><img src="https://raw.githubusercontent.com/sparkchans/pictures/master/%E5%86%8D%E8%A7%81.gif"></p>]]></content>
+      
+      
+      <categories>
+          
+          <category> Linux </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> Linux </tag>
+            
+            <tag> 硬链接 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>Java中MessageFormat的坑</title>
+      <link href="/2022/08/07/java-zhong-messageformat-de-keng/"/>
+      <url>/2022/08/07/java-zhong-messageformat-de-keng/</url>
+      
+        <content type="html"><![CDATA[<h2 id="问题背景"><a href="#问题背景" class="headerlink" title="问题背景"></a>问题背景</h2><p>最近关于 Fastjson 的漏洞又被爆出来了，作为修理工（哦不，专业的软件工程师），又到了我们表演的时候了。</p><p><img src="https://raw.githubusercontent.com/sparkchans/pictures/master/%E8%AF%B7%E5%BC%80%E5%A7%8B%E4%BD%A0%E7%9A%84%E8%A1%A8%E6%BC%94.jpg"></p><p>我们有很多服务是用的老版本的有漏洞的jar包，为了解决这个漏洞问题，我们决定来个偷梁换柱，使用新版本的jar包直接把老版本的有漏洞的jar版本直接覆盖掉。哎哎哎，要想程序搞得好，三十六计不可少。</p><p><img src="https://raw.githubusercontent.com/sparkchans/pictures/master/%E5%81%B7%E6%A2%81%E6%8D%A2%E6%9F%B1.png"></p><h2 id="问题现象"><a href="#问题现象" class="headerlink" title="问题现象"></a>问题现象</h2><p>既然方案确定了，那就开始干，具体思路如下：</p><ul><li>从环境上找出老版本的jar包，然后备份到一个备份路径下，这里备份是为了<strong>支持回退</strong>的功能。</li><li>然后把新版本的jar包拷贝到老版本jar包的路径下。</li><li>重启所有的微服务是jar包生效。</li></ul><p>代码的逻辑如下图所示：</p><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token keyword">for</span> 老版本的jar包 <span class="token keyword">in</span> 所有老版本的jar包<span class="token punctuation">;</span> <span class="token keyword">do</span>     备份老版本的jar包     将新版本的jar包拷贝覆盖老版本的jar包<span class="token keyword">done</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre><p>整体思路很简单，但是问题就出在这个备份上面。在实际的测试过程中，发现备份的目录下，jar包的版本大多数都变成新版本的jar包了，而不是老版本的jar包，如下图所示，在 <code>/tmp/home/testuser </code> 下的 <code>fastjson-1.2.70.jar</code> 这个包的 Hash 值实际上和 <code>fastjson-1.2.83.jar</code> 这个包的 Hash 值一样。</p><p><img src="https://raw.githubusercontent.com/sparkchans/pictures/master/%E6%88%AA%E5%9B%BE%E4%B8%80.png"></p><p><img src="https://raw.githubusercontent.com/sparkchans/pictures/master/image-20220626193219265.png"></p><p>最开始一直以为是自己代码逻辑写的有问题，于是一遍一遍的检查。我先把新版本的jar包覆盖老版本的 jar 包这个逻辑去掉，然后计算备份路径下所有的 Hash 值，发现都是老版本的 jar 包，是没有问题的。</p><p>但是一旦我把覆盖老版本的 jar 包逻辑加上去，这个备份的 jar 包版本就变了，我反反复复搞了好几次结果都是一样的，真是让我百思不得其解。困扰程序员的两大难题之一在我脑海中产生了，它为啥就跑不起来呢？</p><p><img src="https://fastly.jsdelivr.net/gh/filess/img0@main/2022/06/26/1656243666307-ba33ce58-83db-446c-86b8-468cfa041b10.jpg"></p><p>既然看不出来，那就只能使用程序员的必杀器了，Debug 一把。我把每次循环执行覆盖操作后，备份目录的下的 jar 的 Hash 值都算了一下，结果发现在执行第二次循环的时候，备份目录的下的 jar 文件就已经变成了新版本的jar包文件了。</p><p>观察到这个现象之后，我就开始思考为啥会出现这种情况呢？第二个循环的逻辑明明和第一次的逻辑是一样的，为啥结果就变了呢？</p><p><img src="https://raw.githubusercontent.com/sparkchans/pictures/master/%E6%8C%A0%E5%A4%B4.jpg"></p><p>当天搞了很久也没有找到原因是啥，脑壳都给我搞昏了。没办法，明天接着搞。第二天早上来，由于经过了一晚上的回血，思路又清晰起来了，觉得自己又行了。</p><p><img src="https://raw.githubusercontent.com/sparkchans/pictures/master/%E5%8F%88%E8%A1%8C%E4%BA%861.jpg"></p><p>这个时候我想起来，之前有人好像给我说过，我们的jar包是做的硬链接的。这个让我想到了一个经典的面试题：Linux 的软链接和硬链接的区别是啥？区别是啥来着？嗯嗯……，想不起来了，书到用时方恨少啊，默默的流下了没有知识的泪水。</p><p>网上找了一些文章来看，又从电脑屏幕下把压着的《鸟哥的 Linux 私房菜》取出来复习一下。</p><p>然后登录到环境上，看了一下环境上老版本的 jar 包，发现确实是做的硬链接。为了演示这个情况，我在我自己的环境上复现了一下这种情况，如下图所示：</p><p><img src="https://raw.githubusercontent.com/sparkchans/pictures/master/%E6%88%AA%E5%9B%BE%E4%BA%8C.png"></p><p>软链接和硬链接的区别可以参考网上的资料和书籍，我在这里就不细讲了。针对我当前遇到的这个问题，可以打个不恰当的比喻：硬链接就好像你照镜子一样，你做了什么样的改变，镜子里面的你也会做同样的改变。如上图所示，当我们改变 <code>/home/testuser</code> 目录下的 <code>fastjson-1.2.70.jar</code> 这个文件的内容时，<code>/home/admin</code> 目录下的 <code>fastjson-1.2.70.jar</code> 文件的内容会变得和它一样。</p><p>知道了这个特性，我们再结合代码来分析一下：</p><ul><li><p>已知条件：环境上有两个jar包文件: <code>/home/testuser/fastjson-1.2.70.jar</code> 和 <code>/home/admin/fastjson-1.2.70.jar</code>  这两个jar包是硬链接关系</p></li><li><p>推导：当我们执行第一次for循环到<strong>将新版本的jar包拷贝覆盖老版本的jar包</strong>这个步骤时，会把其中一个路径下的jar包版本替换成新版本的jar包了，这个时候相当于<code>/home/testuser/fastjson-1.2.70.jar</code> 和 <code>/home/admin/fastjson-1.2.70.jar</code>  这两个jar包都已经变成新版本的jar包了；当第二次for循环到<strong>备份老版本的jar包</strong>时，这个时候备份的是实际上已经是新版本的jar包了。这个就是为啥第二次以后备份的jar包版本都是新版本的原因了。</p></li></ul><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token keyword">for</span> 老版本的jar包 <span class="token keyword">in</span> 所有老版本的jar包<span class="token punctuation">;</span> <span class="token keyword">do</span>     备份老版本的jar包     将新版本的jar包拷贝覆盖老版本的jar包<span class="token keyword">done</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre><h2 id="解决方法"><a href="#解决方法" class="headerlink" title="解决方法"></a>解决方法</h2><p>知道原因了，我们就思考上面的代码应该怎么改？很显然，备份和拷贝覆盖老版本的jar包这两个动作应该拆分到两个for循环中去实现才行，这样的备份这个for循环里面就会备份的是所有老版本的jar包。如下面的代码所示：</p><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token keyword">for</span> 老版本的jar包 <span class="token keyword">in</span> 所有老版本的jar包<span class="token punctuation">;</span> <span class="token keyword">do</span>     备份老版本的jar包<span class="token keyword">done</span><span class="token keyword">for</span> 老版本的jar包 <span class="token keyword">in</span> 所有老版本的jar包<span class="token punctuation">;</span> <span class="token keyword">do</span>     将新版本的jar包拷贝覆盖老版本的jar包<span class="token keyword">done</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre><p>这个问题的解决主要是要理解硬链接的原理。说实话这个知识之前也看过很多遍，每次看的时候都觉得自己懂了，但是真正遇到问题的时候，才发现自己根本就没有懂。</p><p><img src="https://raw.githubusercontent.com/sparkchans/pictures/master/%E4%BD%A0%E4%B8%8D%E6%87%82.png"></p><p>通过这次问题的解决，我想我应该是对硬链接有了一定的了解。其实在日常的工作中，很多的小问题背后其实都对应的一些知识点的，如果我们能够把这些小问题搞清楚，其实对我们<strong>真正</strong>理解和掌握这个知识是有很大帮助的。好了，今天就到这里了，朋友们，我们下期再见！</p><p><img src="https://raw.githubusercontent.com/sparkchans/pictures/master/%E5%86%8D%E8%A7%81.gif"></p>]]></content>
+      
+      
+      <categories>
+          
+          <category> Java </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> Java </tag>
+            
+            <tag> MessageFormat </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+  
+  
+</search>

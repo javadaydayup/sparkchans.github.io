@@ -4,7 +4,7 @@
 
 <head>
     <meta charset="utf-8">
-    <meta name="keywords" content="contact, sparkchans的博客">
+    <meta name="keywords" content="sparkchans的博客">
     <meta name="description" content="sparkchans的博客">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
@@ -17,12 +17,53 @@
     <!-- Global site tag (gtag.js) - Google Analytics -->
 
 
-    <title>contact | sparkchans的博客</title>
+    <title>sparkchans的博客</title>
     <link rel="icon" type="image/png" href="/favicon.png">
     
 
 
-    <!-- bg-cover style     -->
+    <!-- index cover -->
+    <!-- <link rel="stylesheet preload" type="text/css" href="/css/indexcover.css"> -->
+    <style>
+        .carousel-control {
+            width: 45px;
+            height: 45px;
+            line-height: 55px;
+            border-radius: 45px;
+            background: transparent;
+            cursor: pointer;
+            z-index: 100;
+        }
+        
+        #prev-cover {
+            position: absolute;
+            top: 48%;
+            left: 8px;
+        }
+        
+        #next-cover {
+            position: absolute;
+            top: 48%;
+            right: 8px;;
+        }
+        
+        #prev-cover i {
+            margin-right: 3px;
+        }
+        
+        #next-cover i {
+            margin-left: 3px;
+        }
+        
+        .carousel-control:hover {
+            background-color: rgba(0, 0, 0, .4);
+        }
+        
+        .carousel-control i {
+            color: #fff;
+            font-size: 2.4rem;
+        }
+    </style>
 
 
 
@@ -43,10 +84,6 @@
 
 
 
-
-    
-        <link rel="stylesheet" type="text/css" href="/css/reward.css">
-    
 
 
 
@@ -333,15 +370,15 @@
 
 </header>
 
-    <link rel="stylesheet" type="text/css" href="/css/style.css" />
-<link rel="stylesheet" type="text/css" href="/css/barrager.css">
-<script src="/libs/valine/av-min.js"></script>
-<script src="/libs/jquery/jquery.min.js"></script>
-<script type="text/javascript" src="/js/jquery.barrager.js"></script>
+    
 
-<div class="bg-cover pd-header about-cover">
-    <div class="container">
-    <div class="row">
+
+<div class="carousel carousel-slider center index-cover" data-indicators="true" style="margin-top: -64px;">
+    
+
+    <div class="carousel-item  white-text bg-cover about-cover">
+        <div class="container">
+            <div class="row">
     <div class="col s10 offset-s1 m8 offset-m2 l8 offset-l2">
         <div class="brand">
             <div class="title center-align">
@@ -367,80 +404,265 @@
 </script>
 
 
-    </div>
-</div>
 
-<style>
-    #send{
-        margin-bottom: 10px;
-        width: 49%;
-        background-color: #0ba360;
-    }
-    #clear{
-        margin-bottom: 10px;
-        width: 49%;
-        background-color: #e7c65c;
-    }
-    p{
-        text-align: center;
-    }
-</style>
-<main class="content">
-    <div id="contact" class="container chip-container">
-        <div class="card">
-            <div class="card-content">
-                <div class="tag-title center-align">
-                    <i class="fas fa-comments"></i>&nbsp;&nbsp;留言板
-                </div>
+            <div class="cover-btns">
+                <a href="#indexCard" class="waves-effect waves-light btn">
+                    <i class="fa fa-angle-double-down"></i>开始阅读
+                </a>
+
+                
+                    <a href="https://github.com/sparkchans" class="waves-effect waves-light btn" target="_blank">
+                        <i class="fab fa-github-alt"></i>Github
+                    </a>
                 
             </div>
-            <!--valine评论弹幕-->
-            
-        </div>
+            <div class="cover-social-link">
+    <a href="https://github.com/sparkchans" class="tooltipped" target="_blank" data-tooltip="访问我的GitHub" data-position="top" data-delay="50">
+        <i class="fab fa-github"></i>
+    </a>
 
-        <!--其他评论card-->
-        <div class="card">
-            
 
-            
 
-            
+    <a href="mailto:sparkchans@gmail.com" class="tooltipped" target="_blank" data-tooltip="邮件联系我" data-position="top" data-delay="50">
+        <i class="fas fa-envelope-open"></i>
+    </a>
 
-            
-                <div class="livere-card card" data-aos="fade-up">
-    <!-- 来必力City版安装代码 -->
-    <div id="lv-container" class="card-content" data-id="city" data-uid="MTAyMC81Njk2NC8zMzQyOA==">
-        <script type="text/javascript">
-            (function (d, s) {
-                let j, e = d.getElementsByTagName(s)[0];
-                if (typeof LivereTower === 'function') {
-                    return;
-                }
 
-                j = d.createElement(s);
-                j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
-                j.async = true;
 
-                e.parentNode.insertBefore(j, e);
-            })(document, 'script');
-        </script>
-        <noscript>为正常使用来必力评论功能请激活JavaScript。</noscript>
-    </div>
-    <!-- City版安装代码已完成 -->
+
+
+
+
+    <a href="tencent://AddContact/?fromId=50&fromSubId=1&subcmd=all&uin=1500312710" class="tooltipped" target="_blank" data-tooltip="QQ联系我: 1500312710" data-position="top" data-delay="50">
+        <i class="fab fa-qq"></i>
+    </a>
+
+
+
+
+
+
+
 </div>
-            
-
-            
-
-            
-
-            
-
-            
-
         </div>
     </div>
+
+    
+</div>
+
+<script>
+    $(function () {
+        let coverSlider = $('.carousel');
+
+        //用户触摸轮播自动 restartPlay 是否生效
+        let initUserPressedOrDraggedActive = false
+
+        //用户触摸轮播自动 restartPlay
+        function initUserPressedOrDragged(instance) {
+            setInterval(() => {
+                if (instance.pressed || instance.dragged) {
+                    // console.log('initUserPressedOrDragged: ',instance.pressed,instance.dragged)
+                    restartPlay()
+                }
+            }, 1000)
+        }
+
+        coverSlider.carousel({
+            duration: Number('120'),
+            fullWidth: true,
+            indicators: 'true' === 'true',
+            onCycleTo() {
+                if (!initUserPressedOrDraggedActive) {
+                    // console.log('initUserPressedOrDraggedActive')
+                    initUserPressedOrDragged(this)
+                    initUserPressedOrDraggedActive = true
+                }
+            },
+        })
+
+        let carouselIntervalId;
+        
+        // Loop to call the next cover article picture.
+        let autoCarousel = function () {
+            carouselIntervalId = setInterval(function () {
+                coverSlider.carousel('next');
+            }, 5000);
+        };
+        autoCarousel();
+        
+
+        function restartPlay() {
+            
+            clearInterval(carouselIntervalId);
+            autoCarousel();
+            
+        };
+
+        
+        // prev and next cover post.
+        $('#prev-cover').click(function () {
+            coverSlider.carousel('prev');
+            restartPlay();
+        });
+        $('#next-cover').click(function () {
+            coverSlider.carousel('next');
+            restartPlay();
+        });
+        
+    });
+</script>
+
+
+
+<main class="content">
+
+    
+    <div id="indexCard" class="index-card">
+        <div class="container ">
+            <div class="card">
+                <div class="card-content">
+                    
+
+                    
+
+                    
+
+                    
+                    <div id="recommend-sections" class="recommend">
+                        
+
+
+
+                    </div>
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+    
+
+    
+
+    <!-- 所有文章卡片 -->
+    <article id="articles" class="container articles">
+        <div class="row article-row">
+            
+             <!-- 隐藏某个文章 -->
+            <div class="article col s12 m6 l4" data-aos="zoom-in">
+                <div class="card">
+                    <a href="/2022/08/07/yi-ge-you-ying-lian-jie-yin-fa-de-wen-ti/">
+                        <div class="card-image">
+                            
+                            
+                            <img src="/medias/featureimages/14.jpg" class="responsive-img" alt="一个由硬链接引发的问题">
+                            
+                            <span class="card-title">一个由硬链接引发的问题</span>
+                        </div>
+                    </a>
+
+                    <div class="card-content article-content">
+                        <div class="summary block-with-text">
+                            
+                                一个由硬链接引发的问题问题背景最近关于 Fastjson 的漏洞又被爆出来了，作为修理工（哦不，专业的软件工程师），又到了我们表演的时候了。
+
+我们有很多服务是用的老版本的有漏洞的jar包，为了解决这个漏洞问题，我们决定来个偷梁换柱，使用新
+                            
+                        </div>
+                        <div class="publish-info">
+                            <span class="publish-date">
+                                <i class="far fa-clock fa-fw icon-date"></i>2022-08-07
+                            </span>
+                            <span class="publish-author">
+                                
+                                <i class="fas fa-bookmark fa-fw icon-category"></i>
+                                
+                                <a href="/categories/Linux/" class="post-category">
+                                    Linux
+                                </a>
+                                
+                                
+                            </span>
+                        </div>
+                    </div>
+
+                    
+                    <div class="card-action article-tags">
+                        
+                        <a href="/tags/Linux/">
+                            <span class="chip bg-color">Linux</span>
+                        </a>
+                        
+                        <a href="/tags/%E7%A1%AC%E9%93%BE%E6%8E%A5/">
+                            <span class="chip bg-color">硬链接</span>
+                        </a>
+                        
+                    </div>
+                    
+                </div>
+            </div>
+              <!-- 隐藏某个文章 -->
+            
+             <!-- 隐藏某个文章 -->
+            <div class="article col s12 m6 l4" data-aos="zoom-in">
+                <div class="card">
+                    <a href="/2022/08/07/java-zhong-messageformat-de-keng/">
+                        <div class="card-image">
+                            
+                            
+                            <img src="/medias/featureimages/0.jpg" class="responsive-img" alt="Java中MessageFormat的坑">
+                            
+                            <span class="card-title">Java中MessageFormat的坑</span>
+                        </div>
+                    </a>
+
+                    <div class="card-content article-content">
+                        <div class="summary block-with-text">
+                            
+                                问题背景最近关于 Fastjson 的漏洞又被爆出来了，作为修理工（哦不，专业的软件工程师），又到了我们表演的时候了。
+
+我们有很多服务是用的老版本的有漏洞的jar包，为了解决这个漏洞问题，我们决定来个偷梁换柱，使用新版本的jar包直接把老
+                            
+                        </div>
+                        <div class="publish-info">
+                            <span class="publish-date">
+                                <i class="far fa-clock fa-fw icon-date"></i>2022-08-07
+                            </span>
+                            <span class="publish-author">
+                                
+                                <i class="fas fa-bookmark fa-fw icon-category"></i>
+                                
+                                <a href="/categories/Java/" class="post-category">
+                                    Java
+                                </a>
+                                
+                                
+                            </span>
+                        </div>
+                    </div>
+
+                    
+                    <div class="card-action article-tags">
+                        
+                        <a href="/tags/Java/">
+                            <span class="chip bg-color">Java</span>
+                        </a>
+                        
+                        <a href="/tags/MessageFormat/">
+                            <span class="chip bg-color">MessageFormat</span>
+                        </a>
+                        
+                    </div>
+                    
+                </div>
+            </div>
+              <!-- 隐藏某个文章 -->
+            
+        </div>
+    </article>
+
 </main>
+
+
 
 
     <footer class="page-footer bg-color">

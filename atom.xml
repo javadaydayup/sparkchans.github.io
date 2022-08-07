@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title>sparkchans的博客</title>
+  
+  <subtitle>公众号「javadaydayup」</subtitle>
+  <link href="http://sparkchans.github.io/atom.xml" rel="self"/>
+  
+  <link href="http://sparkchans.github.io/"/>
+  <updated>2022-08-07T10:17:10.566Z</updated>
+  <id>http://sparkchans.github.io/</id>
+  
+  <author>
+    <name>sparkchans</name>
+    
+  </author>
+  
+  <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>一个由硬链接引发的问题</title>
+    <link href="http://sparkchans.github.io/2022/08/07/yi-ge-you-ying-lian-jie-yin-fa-de-wen-ti/"/>
+    <id>http://sparkchans.github.io/2022/08/07/yi-ge-you-ying-lian-jie-yin-fa-de-wen-ti/</id>
+    <published>2022-08-07T10:15:01.000Z</published>
+    <updated>2022-08-07T10:17:10.566Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;h1 id=&quot;一个由硬链接引发的问题&quot;&gt;&lt;a href=&quot;#一个由硬链接引发的问题&quot; class=&quot;headerlink&quot; title=&quot;一个由硬链接引发的问题&quot;&gt;&lt;/a&gt;一个由硬链接引发的问题&lt;/h1&gt;&lt;h2 id=&quot;问题背景&quot;&gt;&lt;a href=&quot;#问题背景&quot;</summary>
+        
+      
+    
+    
+    
+    <category term="Linux" scheme="http://sparkchans.github.io/categories/Linux/"/>
+    
+    
+    <category term="Linux" scheme="http://sparkchans.github.io/tags/Linux/"/>
+    
+    <category term="硬链接" scheme="http://sparkchans.github.io/tags/%E7%A1%AC%E9%93%BE%E6%8E%A5/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Java中MessageFormat的坑</title>
+    <link href="http://sparkchans.github.io/2022/08/07/java-zhong-messageformat-de-keng/"/>
+    <id>http://sparkchans.github.io/2022/08/07/java-zhong-messageformat-de-keng/</id>
+    <published>2022-08-07T10:14:47.000Z</published>
+    <updated>2022-08-07T10:17:24.782Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;h2 id=&quot;问题背景&quot;&gt;&lt;a href=&quot;#问题背景&quot; class=&quot;headerlink&quot; title=&quot;问题背景&quot;&gt;&lt;/a&gt;问题背景&lt;/h2&gt;&lt;p&gt;最近关于 Fastjson</summary>
+        
+      
+    
+    
+    
+    <category term="Java" scheme="http://sparkchans.github.io/categories/Java/"/>
+    
+    
+    <category term="Java" scheme="http://sparkchans.github.io/tags/Java/"/>
+    
+    <category term="MessageFormat" scheme="http://sparkchans.github.io/tags/MessageFormat/"/>
+    
+  </entry>
+  
+</feed>
